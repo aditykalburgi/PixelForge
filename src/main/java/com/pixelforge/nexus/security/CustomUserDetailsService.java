@@ -20,7 +20,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Allow login with either username or email
         User user = userRepository.findByUsername(username)
+            .or(() -> userRepository.findByEmail(username))
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         Collection<GrantedAuthority> authorities = Collections.singleton(

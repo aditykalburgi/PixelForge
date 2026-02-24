@@ -44,8 +44,6 @@ public class DataSeeder implements CommandLineRunner {
             userRepository.save(admin);
             userRepository.save(lead);
             userRepository.save(dev);
-
-            System.out.println("DataSeeder: Initial users created successfully");
         }
     }
 }

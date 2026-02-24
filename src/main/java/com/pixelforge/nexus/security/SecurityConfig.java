@@ -32,51 +32,59 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // CSRF protection enabled by default; Thymeleaf automatically includes CSRF token in forms
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable()) // Disable CSRF for development/REST API
+            .cors(cors -> cors.configure(http)) // Enable CORS
+            .authenticationProvider(authenticationProvider())
 
             // Authorization rules
             .authorizeHttpRequests(authz -> authz
-                // Permit unauthenticated access to login and static resources
-                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                // Permit unauthenticated access to login, auth info, and static resources
+                .requestMatchers("/login", "/api/auth/**", "/css/**", "/js/**").permitAll()
 
                 // ADMIN only: administrative endpoints
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 // ADMIN only: create and complete projects
-                .requestMatchers("POST", "/projects/create").hasRole("ADMIN")
-                .requestMatchers("POST", "/projects/*/complete").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/projects/create").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/projects/*/complete").hasRole("ADMIN")
 
                 // ADMIN or PROJECT_LEAD: assign members and upload documents
-                .requestMatchers("POST", "/projects/*/assign").hasAnyRole("ADMIN", "PROJECT_LEAD")
-                .requestMatchers("POST", "/projects/*/upload").hasAnyRole("ADMIN", "PROJECT_LEAD")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/projects/*/assign").hasAnyRole("ADMIN", "PROJECT_LEAD")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/projects/*/upload").hasAnyRole("ADMIN", "PROJECT_LEAD")
 
-                // All other endpoints require authentication
-                .anyRequest().authenticated()
+                // All other API endpoints require authentication
+                .requestMatchers("/api/**").authenticated()
+                
+                // Permit everything else for now (like React routes if served by Spring)
+                .anyRequest().permitAll()
             )
 
             // Login configuration
             .formLogin(form -> form
-                // Login page is /login
                 .loginPage("/login")
-                // Redirect to /dashboard on successful authentication
-                .defaultSuccessUrl("/dashboard", true)
-                // Redirect to /login?error on authentication failure
-                .failureUrl("/login?error")
-                // Allow POST to /login for form submission
+                .successHandler((request, response, authentication) -> {
+                    response.setStatus(200);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\": true, \"message\": \"Logged in successfully\"}");
+                })
+                .failureHandler((request, response, exception) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\": false, \"message\": \"Login failed: " + exception.getMessage() + "\"}");
+                })
                 .permitAll()
             )
 
             // Logout configuration
             .logout(logout -> logout
-                // Logout endpoint is /logout
                 .logoutUrl("/logout")
-                // Redirect to /login?logout after successful logout
-                .logoutSuccessUrl("/login?logout")
-                // Invalidate session on logout to prevent session fixation attacks
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(200);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"success\": true, \"message\": \"Logged out successfully\"}");
+                })
                 .invalidateHttpSession(true)
-                // Delete JSESSIONID cookie on logout
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             );

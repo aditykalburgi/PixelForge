@@ -12,25 +12,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Collection;
 import java.util.List;
 
-@Controller
-@RequestMapping("/dashboard")
+@RestController
+@RequestMapping("/api/dashboard")
 public class DashboardController {
 
     @Autowired
     private ProjectService projectService;
 
     @GetMapping
-    public String dashboard(Authentication authentication, Model model) {
+    public ResponseEntity<?> dashboard(Authentication authentication) {
         String userId = authentication.getName();
         String userRole = extractRole(authentication.getAuthorities());
 
         List<Project> projects = projectService.getProjectsForUser(userId, userRole);
 
-        model.addAttribute("projects", projects);
-        model.addAttribute("projectCount", projects.size());
-        model.addAttribute("userRole", userRole);
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("projects", projects);
+        response.put("projectCount", projects.size());
+        response.put("userRole", userRole);
 
-        return "dashboard";
+        return ResponseEntity.ok(response);
     }
 
     private String extractRole(Collection<? extends GrantedAuthority> authorities) {

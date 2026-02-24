@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@Controller
-@RequestMapping("/projects")
+@RestController
+@RequestMapping("/api/projects")
 public class ProjectController {
 
     @Autowired
@@ -35,14 +35,13 @@ public class ProjectController {
     private UserRepository userRepository;
 
     @GetMapping
-    public String listProjects(Model model) {
+    public ResponseEntity<List<Project>> listProjects() {
         List<Project> projects = projectService.findAll();
-        model.addAttribute("projects", projects);
-        return "projects/list";
+        return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{id}")
-    public String projectDetail(@PathVariable String id, Model model) {
+    public ResponseEntity<?> projectDetail(@PathVariable String id) {
         try {
             Optional<Project> projectOpt = projectService.getProjectDetail(id);
             if (projectOpt.isPresent()) {
@@ -51,50 +50,50 @@ public class ProjectController {
                 List<UploadedDocument> documents = documentService.getProjectDocuments(id);
                 List<User> availableUsers = userRepository.findAll();
 
-                model.addAttribute("project", project);
-                model.addAttribute("members", members);
-                model.addAttribute("documents", documents);
-                model.addAttribute("availableUsers", availableUsers);
-                return "projects/detail";
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("project", project);
+                response.put("members", members);
+                response.put("documents", documents);
+                response.put("availableUsers", availableUsers);
+                
+                return ResponseEntity.ok(response);
             } else {
-                return "redirect:/projects";
+                return ResponseEntity.status(404).body("Project not found");
             }
         } catch (Exception e) {
-            return "redirect:/projects";
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
 
     @PostMapping("/create")
-    public String createProject(@Valid @ModelAttribute CreateProjectDTO dto, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> createProject(@Valid @RequestBody CreateProjectDTO dto, Authentication authentication) {
         try {
             String userId = authentication.getName();
             User user = userRepository.findByUsername(userId).orElse(null);
 
             if (user != null) {
                 projectService.createProject(dto, user.getId());
-                redirectAttributes.addFlashAttribute("success", "Project created successfully");
+                return ResponseEntity.ok(java.util.Map.of("message", "Project created successfully"));
             } else {
-                redirectAttributes.addFlashAttribute("error", "User not found");
+                return ResponseEntity.status(404).body("User not found");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error creating project: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error creating project: " + e.getMessage());
         }
-        return "redirect:/projects";
     }
 
     @PostMapping("/{id}/complete")
-    public String completeProject(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> completeProject(@PathVariable String id) {
         try {
             projectService.completeProject(id);
-            redirectAttributes.addFlashAttribute("success", "Project completed successfully");
+            return ResponseEntity.ok(java.util.Map.of("message", "Project completed successfully"));
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error completing project: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error completing project: " + e.getMessage());
         }
-        return "redirect:/projects/" + id;
     }
 
     @PostMapping("/{id}/assign")
-    public String assignMember(@PathVariable String id, @RequestParam String userId, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> assignMember(@PathVariable String id, @RequestParam String userId, Authentication authentication) {
         try {
             String assignedById = authentication.getName();
             User assignedByUser = userRepository.findByUsername(assignedById).orElse(null);
@@ -102,25 +101,23 @@ public class ProjectController {
             if (assignedByUser != null) {
                 boolean success = projectService.assignMember(id, userId, assignedByUser.getId());
                 if (success) {
-                    redirectAttributes.addFlashAttribute("success", "Member assigned successfully");
+                    return ResponseEntity.ok(java.util.Map.of("message", "Member assigned successfully"));
                 } else {
-                    redirectAttributes.addFlashAttribute("error", "Member is already assigned to this project");
+                    return ResponseEntity.status(400).body("Member is already assigned to this project");
                 }
             } else {
-                redirectAttributes.addFlashAttribute("error", "User not found");
+                return ResponseEntity.status(404).body("User not found");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error assigning member: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error assigning member: " + e.getMessage());
         }
-        return "redirect:/projects/" + id;
     }
 
     @PostMapping("/{id}/upload")
-    public String uploadDocument(@PathVariable String id, @RequestParam MultipartFile file, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> uploadDocument(@PathVariable String id, @RequestParam MultipartFile file, Authentication authentication) {
         try {
             if (file.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Please select a file to upload");
-                return "redirect:/projects/" + id;
+                return ResponseEntity.status(400).body("Please select a file to upload");
             }
 
             String uploadedById = authentication.getName();
@@ -128,18 +125,17 @@ public class ProjectController {
 
             if (user != null) {
                 documentService.uploadDocument(id, file, user.getId());
-                redirectAttributes.addFlashAttribute("success", "Document uploaded successfully");
+                return ResponseEntity.ok(java.util.Map.of("message", "Document uploaded successfully"));
             } else {
-                redirectAttributes.addFlashAttribute("error", "User not found");
+                return ResponseEntity.status(404).body("User not found");
             }
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "Error uploading file: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error uploading file: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Unexpected error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
         }
-        return "redirect:/projects/" + id;
     }
 }
 

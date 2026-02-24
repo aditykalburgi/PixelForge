@@ -9,24 +9,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
-@RequestMapping("/account")
+@RestController
+@RequestMapping("/api/account")
 public class AccountController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping
-    public String account() {
-        return "account";
+    public ResponseEntity<?> account(Authentication authentication) {
+        String username = authentication.getName();
+        return userService.findByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404).build());
     }
 
     @PostMapping("/password")
-    public String changePassword(@Valid @ModelAttribute ChangePasswordDTO dto, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO dto, Authentication authentication) {
         try {
             if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
-                redirectAttributes.addFlashAttribute("error", "New passwords do not match");
-                return "redirect:/account";
+                return ResponseEntity.status(400).body(java.util.Map.of("error", "New passwords do not match"));
             }
 
             String username = authentication.getName();
@@ -35,17 +37,16 @@ public class AccountController {
             if (user != null) {
                 boolean success = userService.changePassword(user.getId(), dto.getCurrentPassword(), dto.getNewPassword());
                 if (success) {
-                    redirectAttributes.addFlashAttribute("success", "Password changed successfully");
+                    return ResponseEntity.ok(java.util.Map.of("message", "Password changed successfully"));
                 } else {
-                    redirectAttributes.addFlashAttribute("error", "Current password is incorrect");
+                    return ResponseEntity.status(400).body(java.util.Map.of("error", "Current password is incorrect"));
                 }
             } else {
-                redirectAttributes.addFlashAttribute("error", "User not found");
+                return ResponseEntity.status(404).body(java.util.Map.of("error", "User not found"));
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error changing password: " + e.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("error", "Error changing password: " + e.getMessage()));
         }
-        return "redirect:/account";
     }
 }
 
