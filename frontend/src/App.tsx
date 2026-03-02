@@ -10,7 +10,7 @@ import ProjectDetail from './pages/ProjectDetail';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen bg-background pattern-lines"><span className="text-lg font-serif">Loading...</span></div>;
   if (!user) return <Navigate to="/login" />;
 
   return <>{children}</>;
@@ -31,8 +31,8 @@ function App() {
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="projects" element={<ProjectList />} />
                     <Route path="projects/:id" element={<ProjectDetail />} />
-                    <Route path="account" element={<div style={{ padding: '2rem' }}>Account Component (Coming Soon)</div>} />
-                    <Route path="admin/users" element={<div style={{ padding: '2rem' }}>Admin Component (Coming Soon)</div>} />
+                    <Route path="account" element={<div className="p-8 md:p-12">Account Component (Coming Soon)</div>} />
+                    <Route path="admin/users" element={<div className="p-8 md:p-12">Admin Component (Coming Soon)</div>} />
                     <Route path="" element={<Navigate to="/dashboard" />} />
                   </Routes>
                 </Layout>

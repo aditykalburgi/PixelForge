@@ -22,13 +22,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const checkAuth = async () => {
         try {
-            const response = await api.get('/auth/me');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            
+            const response = await api.get('/auth/me', {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            
             if (response.data.authenticated) {
                 setUser(response.data);
             } else {
                 setUser(null);
             }
         } catch (error) {
+            // Silently fail - user will be redirected to login
+            console.warn('Auth check failed:', error instanceof Error ? error.message : 'Unknown error');
             setUser(null);
         } finally {
             setLoading(false);

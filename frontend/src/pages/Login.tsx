@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -25,58 +24,154 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <div className="glass" style={{ padding: '2.5rem', width: '100%', maxWidth: '400px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <LogIn size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>PixelForge Nexus</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Sign in to continue</p>
+        <div style={{ 
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#FFFFFF',
+            color: '#000000',
+            fontFamily: '"Source Serif 4", Georgia, serif'
+        }}>
+            <div style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
+                {/* Header */}
+                <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                    <h1 style={{ 
+                        fontSize: '3rem',
+                        fontWeight: 'bold',
+                        marginBottom: '1rem',
+                        fontFamily: '"Playfair Display", Georgia, serif',
+                        letterSpacing: '-0.025em'
+                    }}>
+                        PixelForge
+                    </h1>
+                    <p style={{ fontSize: '1.125rem', color: '#525252' }}>
+                        Nexus Platform
+                    </p>
                 </div>
 
+                {/* Error Message */}
                 {error && (
-                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', padding: '0.75rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+                    <div style={{
+                        backgroundColor: '#000000',
+                        color: '#FFFFFF',
+                        padding: '1rem',
+                        marginBottom: '1.5rem',
+                        border: '1px solid #000000',
+                        fontSize: '0.875rem'
+                    }}>
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '1.25rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Username</label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                            className="glass"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white' }}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="glass"
-                            style={{ width: '100%', padding: '0.75rem', color: 'white' }}
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            backgroundColor: 'var(--primary)',
-                            color: 'white',
-                            borderRadius: '8px',
-                            fontWeight: '600',
-                            transition: 'background 0.2s'
-                        }}
-                    >
-                        Sign In
-                    </button>
-                </form>
+                {/* Form Card */}
+                <div style={{ 
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #000000',
+                    padding: '2rem'
+                }}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        {/* Username Input */}
+                        <div>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '0.5rem',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                letterSpacing: '0.1em',
+                                textTransform: 'uppercase',
+                                fontFamily: '"JetBrains Mono", monospace'
+                            }}>
+                                Username
+                            </label>
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                                placeholder="Enter your username"
+                                style={{
+                                    width: '100%',
+                                    borderBottom: '2px solid #000000',
+                                    backgroundColor: '#FFFFFF',
+                                    color: '#000000',
+                                    padding: '0.75rem 0',
+                                    fontSize: '1rem',
+                                    fontFamily: 'inherit',
+                                    outline: 'none',
+                                    boxSizing: 'border-box'
+                                }}
+                                onFocus={(e) => e.currentTarget.style.borderBottomWidth = '4px'}
+                                onBlur={(e) => e.currentTarget.style.borderBottomWidth = '2px'}
+                            />
+                        </div>
+
+                        {/* Password Input */}
+                        <div>
+                            <label style={{
+                                display: 'block',
+                                marginBottom: '0.5rem',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                letterSpacing: '0.1em',
+                                textTransform: 'uppercase',
+                                fontFamily: '"JetBrains Mono", monospace'
+                            }}>
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="Enter your password"
+                                style={{
+                                    width: '100%',
+                                    borderBottom: '2px solid #000000',
+                                    backgroundColor: '#FFFFFF',
+                                    color: '#000000',
+                                    padding: '0.75rem 0',
+                                    fontSize: '1rem',
+                                    fontFamily: 'inherit',
+                                    outline: 'none',
+                                    boxSizing: 'border-box'
+                                }}
+                                onFocus={(e) => e.currentTarget.style.borderBottomWidth = '4px'}
+                                onBlur={(e) => e.currentTarget.style.borderBottomWidth = '2px'}
+                            />
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            style={{
+                                backgroundColor: '#000000',
+                                color: '#FFFFFF',
+                                padding: '1rem',
+                                fontSize: '0.875rem',
+                                fontWeight: '600',
+                                letterSpacing: '0.1em',
+                                textTransform: 'uppercase',
+                                cursor: 'pointer',
+                                border: 'none',
+                                fontFamily: 'inherit',
+                                transition: 'all 100ms'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#FFFFFF';
+                                e.currentTarget.style.color = '#000000';
+                                e.currentTarget.style.border = '2px solid #000000';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#000000';
+                                e.currentTarget.style.color = '#FFFFFF';
+                                e.currentTarget.style.border = 'none';
+                            }}
+                        >
+                            Sign In
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

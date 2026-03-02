@@ -7,62 +7,55 @@ const Sidebar: React.FC = () => {
     const { logout, user } = useAuth();
 
     const navItems = [
-        { to: '/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-        { to: '/projects', icon: <Briefcase size={20} />, label: 'Projects' },
-        { to: '/account', icon: <User size={20} />, label: 'Account' },
+        { to: '/dashboard', icon: <LayoutDashboard size={20} strokeWidth={1.5} />, label: 'Dashboard' },
+        { to: '/projects', icon: <Briefcase size={20} strokeWidth={1.5} />, label: 'Projects' },
+        { to: '/account', icon: <User size={20} strokeWidth={1.5} />, label: 'Account' },
     ];
 
     if (user?.roles.includes('ADMIN')) {
-        navItems.push({ to: '/admin/users', icon: <Settings size={20} />, label: 'Admin' });
+        navItems.push({ to: '/admin/users', icon: <Settings size={20} strokeWidth={1.5} />, label: 'Admin' });
     }
 
     return (
-        <div className="glass" style={{ width: '260px', height: '100vh', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'fixed', left: 0, top: 0, borderRadius: 0 }}>
-            <div style={{ padding: '0 0.5rem 2rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--primary)' }}>PixelForge</h2>
+        <div className="fixed left-0 top-0 w-72 h-screen bg-background border-r border-foreground flex flex-col pattern-lines">
+            {/* Header */}
+            <div className="p-8 border-b border-foreground">
+                <h2 className="font-display text-2xl font-bold tracking-tight">PixelForge</h2>
             </div>
 
-            <nav style={{ flex: 1 }}>
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.to}
-                        to={item.to}
-                        style={({ isActive }) => ({
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            padding: '0.75rem 1rem',
-                            marginBottom: '0.5rem',
-                            borderRadius: '8px',
-                            color: isActive ? 'white' : 'var(--text-muted)',
-                            backgroundColor: isActive ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-                            transition: 'all 0.2s'
-                        })}
-                    >
-                        {item.icon}
-                        <span style={{ fontWeight: 500 }}>{item.label}</span>
-                    </NavLink>
-                ))}
+            {/* Navigation */}
+            <nav className="flex-1 overflow-y-auto">
+                <ul className="space-y-px p-6">
+                    {navItems.map((item) => (
+                        <li key={item.to}>
+                            <NavLink
+                                to={item.to}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-100 border-l-[3px] ${
+                                        isActive
+                                            ? 'border-l-foreground bg-muted text-foreground'
+                                            : 'border-l-transparent text-muted-foreground hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                {item.icon}
+                                <span>{item.label}</span>
+                            </NavLink>
+                        </li>
+                    ))}
+                </ul>
             </nav>
 
-            <button
-                onClick={logout}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    color: 'var(--error)',
-                    marginTop: 'auto',
-                    borderRadius: '8px',
-                    transition: 'background 0.2s'
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)')}
-                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-                <LogOut size={20} />
-                <span style={{ fontWeight: 500 }}>Logout</span>
-            </button>
+            {/* Logout */}
+            <div className="border-t border-foreground p-6">
+                <button
+                    onClick={logout}
+                    className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted-foreground w-full transition-all duration-100 hover:text-foreground focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2"
+                >
+                    <LogOut size={20} strokeWidth={1.5} />
+                    <span>Logout</span>
+                </button>
+            </div>
         </div>
     );
 };

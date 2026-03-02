@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Briefcase, Plus, Clock, CheckCircle } from 'lucide-react';
+import { Button, Card, Separator } from '../components/ui';
 
 interface Project {
     id: string;
@@ -30,56 +31,86 @@ const Dashboard: React.FC = () => {
         fetchDashboard();
     }, []);
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading dashboard...</div>;
+    if (loading) return <div className="px-6 md:px-12 py-8 font-serif text-center">Loading dashboard...</div>;
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-                <div>
-                    <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Welcome, {user?.username}</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>You have {projects.length} active projects</p>
+        <div className="relative pattern-lines">
+            {/* Header Section */}
+            <header className="px-6 md:px-12 py-12 md:py-16">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+                    <div>
+                        <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tighter mb-4">
+                            Dashboard
+                        </h1>
+                        <p className="font-serif text-lg text-muted-foreground">
+                            Welcome, <span className="font-bold text-foreground">{user?.username}</span>
+                        </p>
+                        <p className="font-serif text-sm text-muted-foreground mt-2">
+                            {projects.length} {projects.length === 1 ? 'project' : 'projects'} in your workspace
+                        </p>
+                    </div>
+                    {user?.roles.includes('ROLE_ADMIN') && (
+                        <Button variant="primary" size="lg">
+                            <Plus size={18} strokeWidth={2} className="inline mr-2" />
+                            New Project
+                        </Button>
+                    )}
                 </div>
-                {user?.roles.includes('ROLE_ADMIN') && (
-                    <button className="glass" style={{ padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none' }}>
-                        <Plus size={20} />
-                        New Project
-                    </button>
-                )}
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                {projects.map((project) => (
-                    <div key={project.id} className="glass" style={{ padding: '1.5rem', transition: 'transform 0.2s' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                            <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', padding: '0.5rem', borderRadius: '8px' }}>
-                                <Briefcase size={24} color="var(--primary)" />
-                            </div>
-                            <h3 style={{ fontWeight: 600 }}>{project.name}</h3>
-                        </div>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {project.description}
-                        </p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
-                                fontSize: '0.75rem',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '9999px',
-                                backgroundColor: project.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                                color: project.status === 'COMPLETED' ? 'var(--success)' : 'var(--primary)'
-                            }}>
-                                {project.status === 'COMPLETED' ? <CheckCircle size={14} /> : <Clock size={14} />}
-                                {project.status}
-                            </span>
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-                                {new Date(project.createdAt).toLocaleDateString()}
-                            </span>
-                        </div>
+            {/* Separator */}
+            <Separator thickness="thick" className="mx-6 md:mx-12" />
+
+            {/* Projects Grid */}
+            <section className="px-6 md:px-12 py-12 md:py-16">
+                {projects.length === 0 ? (
+                    <div className="text-center py-16">
+                        <Briefcase size={64} strokeWidth={1} className="mx-auto mb-6 text-muted-foreground" />
+                        <p className="font-serif text-lg text-muted-foreground">No projects yet</p>
                     </div>
-                ))}
-            </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {projects.map((project) => (
+                            <Card key={project.id} variant="default" className="group transition-all duration-100 hover:bg-foreground hover:text-background">
+                                {/* Project Icon & Title */}
+                                <div className="flex items-start gap-4 mb-4">
+                                    <div className="flex-shrink-0">
+                                        <Briefcase size={28} strokeWidth={1.5} className="text-foreground group-hover:text-background" />
+                                    </div>
+                                    <h3 className="font-display text-2xl font-bold tracking-tight leading-tight">
+                                        {project.name}
+                                    </h3>
+                                </div>
+
+                                {/* Description */}
+                                <p className="font-serif text-base leading-relaxed mb-6 line-clamp-3">
+                                    {project.description}
+                                </p>
+
+                                {/* Footer: Status & Date */}
+                                <div className="flex items-center justify-between pt-4 border-t border-inherit">
+                                    {/* Status Badge */}
+                                    <div className="flex items-center gap-2">
+                                        {project.status === 'COMPLETED' ? (
+                                            <CheckCircle size={16} strokeWidth={1.5} className="text-foreground group-hover:text-background" />
+                                        ) : (
+                                            <Clock size={16} strokeWidth={1.5} className="text-foreground group-hover:text-background" />
+                                        )}
+                                        <span className="font-mono text-xs uppercase tracking-widest font-medium">
+                                            {project.status}
+                                        </span>
+                                    </div>
+
+                                    {/* Date */}
+                                    <span className="font-mono text-xs text-muted-foreground group-hover:text-inherit transition-colors">
+                                        {new Date(project.createdAt).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </section>
         </div>
     );
 };

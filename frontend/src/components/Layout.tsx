@@ -3,9 +3,9 @@ import Sidebar from './Sidebar';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
-        <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <div className="flex min-h-screen bg-background pattern-lines">
             <Sidebar />
-            <main style={{ flex: 1, marginLeft: '260px', backgroundColor: 'var(--bg-dark)' }}>
+            <main className="flex-1 ml-72 bg-background">
                 {children}
             </main>
         </div>

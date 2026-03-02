@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { Briefcase, ArrowRight, Clock, CheckCircle } from 'lucide-react';
+import { Card, Separator } from '../components/ui';
 
 interface Project {
     id: string;
@@ -27,55 +28,81 @@ const ProjectList: React.FC = () => {
     }, []);
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>All Projects</h1>
+        <div className="relative pattern-lines">
+            {/* Header */}
+            <header className="px-6 md:px-12 py-12 md:py-16">
+                <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tighter">
+                    All Projects
+                </h1>
+                <p className="font-serif text-lg text-muted-foreground mt-4">
+                    {projects.length} {projects.length === 1 ? 'project' : 'projects'} total
+                </p>
+            </header>
 
-            <div className="glass" style={{ overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                            <th style={{ padding: '1rem' }}>Project Name</th>
-                            <th style={{ padding: '1rem' }}>Status</th>
-                            <th style={{ padding: '1rem' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {projects.map((project) => (
-                            <tr key={project.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }}>
-                                <td style={{ padding: '1rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <Briefcase size={20} color="var(--primary)" />
-                                        <span style={{ fontWeight: 500 }}>{project.name}</span>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '0.25rem',
-                                        fontSize: '0.75rem',
-                                        padding: '0.25rem 0.5rem',
-                                        borderRadius: '9999px',
-                                        backgroundColor: project.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                                        color: project.status === 'COMPLETED' ? 'var(--success)' : 'var(--primary)'
-                                    }}>
-                                        {project.status === 'COMPLETED' ? <CheckCircle size={14} /> : <Clock size={14} />}
-                                        {project.status}
-                                    </span>
-                                </td>
-                                <td style={{ padding: '1rem' }}>
-                                    <button
-                                        onClick={() => navigate(`/projects/${project.id}`)}
-                                        style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem' }}
-                                    >
-                                        View Details <ArrowRight size={16} />
-                                    </button>
-                                </td>
-                            </tr>
+            <Separator thickness="thick" className="mx-6 md:mx-12" />
+
+            {/* Projects List */}
+            <section className="px-6 md:px-12 py-12 md:py-16">
+                {projects.length === 0 ? (
+                    <div className="text-center py-24">
+                        <Briefcase size={64} strokeWidth={1} className="mx-auto mb-6 text-muted-foreground" />
+                        <p className="font-serif text-lg text-muted-foreground">No projects available</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {projects.map((project, index) => (
+                            <React.Fragment key={project.id}>
+                                <button
+                                    onClick={() => navigate(`/projects/${project.id}`)}
+                                    className="w-full text-left group"
+                                >
+                                    <Card variant="borderless" className="p-0 transition-all duration-100 hover:bg-muted">
+                                        <div className="flex items-start justify-between gap-6">
+                                            {/* Content */}
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <Briefcase size={24} strokeWidth={1.5} className="text-foreground flex-shrink-0" />
+                                                    <h3 className="font-display text-3xl font-bold tracking-tight leading-tight group-hover:underline transition-all">
+                                                        {project.name}
+                                                    </h3>
+                                                </div>
+                                                <p className="font-serif text-base text-muted-foreground leading-relaxed mb-4">
+                                                    {project.description}
+                                                </p>
+                                                {/* Status */}
+                                                <div className="flex items-center gap-2">
+                                                    {project.status === 'COMPLETED' ? (
+                                                        <CheckCircle size={16} strokeWidth={1.5} className="text-foreground" />
+                                                    ) : (
+                                                        <Clock size={16} strokeWidth={1.5} className="text-foreground" />
+                                                    )}
+                                                    <span className="font-mono text-xs uppercase tracking-widest font-medium">
+                                                        {project.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Arrow */}
+                                            <div className="flex-shrink-0 flex items-center justify-center">
+                                                <ArrowRight
+                                                    size={24}
+                                                    strokeWidth={1.5}
+                                                    className="text-foreground group-hover:translate-x-1 transition-transform duration-100"
+                                                />
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </button>
+
+                                {/* Horizontal divider between items */}
+                                {index < projects.length - 1 && (
+                                    <div className="h-px bg-border-light" />
+                                )}
+                            </React.Fragment>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                )}
+            </section>
         </div>
     );
 };
