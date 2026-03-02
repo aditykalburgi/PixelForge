@@ -19,8 +19,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowCredentials(true);
+        
+        // Allow CORS for login and logout endpoints
+        registry.addMapping("/login")
+                .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")
+                .allowedMethods("GET", "POST", "OPTIONS")
+                .allowCredentials(true);
+        
+        registry.addMapping("/logout")
+                .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175")
+                .allowedMethods("GET", "POST", "OPTIONS")
                 .allowCredentials(true);
     }
 }

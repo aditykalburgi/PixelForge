@@ -49,8 +49,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = async (credentials: URLSearchParams) => {
-        // Spring Security form login expects application/x-www-form-urlencoded
-        await api.post('/login', credentials, {
+        // Spring Security form login is at /login (not /api/login)
+        // Use absolute URL since login endpoint is outside /api base path
+        await api.post('http://localhost:8080/login', credentials, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         await checkAuth();
